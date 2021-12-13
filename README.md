@@ -8,5 +8,5 @@ Epic Games needs to work on it. Import/export is completely missing, and while i
 
 The basic functions can be source in https://tieba.baidu.com/p/7238257931?pid=138060534934, through this path to realize the import and export, backup and restore the function.
 
-I'm just a guy who looks at writing a program, and it's not that good, but I get what I need and I think somebody else might need it.
+I'm just a guy who doesn’t good at write program, and it's not that good, but I get what I need and I think somebody else might need it.
 
