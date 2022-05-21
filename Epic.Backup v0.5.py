@@ -74,9 +74,10 @@ def unzip_file(zip_src, dst_dir):
             Scrol.see(END)
             root.update()
             fz.extract(file, dst_dir)
+        fz.close()
     else:
         print('This is not zip')
-    r.close()
+
     numC = 0
     all_file_num = 0
     Scrol.insert(END,'解压完成' + '\n')
