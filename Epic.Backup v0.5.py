@@ -431,7 +431,7 @@ ScaleFactor=ctypes.windll.shcore.GetScaleFactorForDevice(0)
 #设置缩放因子
 root.tk.call('tk', 'scaling', ScaleFactor/65)
 
-root.title('Epic 游戏管理 V0.5  @BLIEFDAWN of Github')
+root.title('Epic 游戏管理 V0.7a  @BLIEFDAWN of Github')
 root.geometry('800x610')
 root.resizable(width=0, height=0)
 
@@ -464,7 +464,7 @@ frame_3.pack(padx=10, pady=10, ipadx=10, ipady=5)
 PathOld = StringVar()
 PathNew = StringVar()
 
-def GetCB():        #第一个输入框修改
+def GetCB(self):        #第一个输入框修改
     PathOld = StringVar()
     PathOld.set('')             
     Path_o.delete(0, END)       #清空原始Entry字符
