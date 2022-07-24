@@ -138,7 +138,6 @@ def unzip_file_extension(zip_src, dst_dir, fmode):
 
 #文件复制流
 def streamIo(src, dst):
-
     def copy2_verbose(src, dst):
         global numC
         global file_names
