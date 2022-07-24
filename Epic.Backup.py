@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 from asyncio.windows_events import NULL
+import base64
 import tkinter
 from tkinter import *
 from tkinter.ttk import *
@@ -15,16 +16,19 @@ import shutil
 from shutil import copy2
 from shutil import copytree
 import zipfile
+
 from PFile import *
+from EIcon import *
 
 #版本代码
-Eversion = "V0.8a"
+Eversion = "V0.9a"
 
 #实现开始###########################################################################################
 
 
 def on_closing():   #退出确认
     if tkinter.messagebox.askyesno('退出','确认退出，请确定没有执行中的流'):
+        os.remove('tmp.ico')
         root.destroy()
 
 #实现-获取文件名
@@ -67,7 +71,7 @@ def unzip_file(zip_src, dst_dir):
     numC = 0
     all_file_num = 0
     r = zipfile.is_zipfile(zip_src)
-    if r:     
+    if r:
         fz = zipfile.ZipFile(zip_src, 'r')
         all_file_num = len(fz.namelist())
         for file in fz.namelist():
@@ -77,7 +81,6 @@ def unzip_file(zip_src, dst_dir):
             Scrol.insert(END,'Unpacking: {:.0f}%'.format(numC/all_file_num*100) +' /{0}'.format(os.path.basename(file)) + '\n')
             Scrol.see(END)
             root.update()
-            fz.extract(file, dst_dir)
         fz.close()
     else:
         print('This is not zip')
@@ -86,6 +89,52 @@ def unzip_file(zip_src, dst_dir):
     all_file_num = 0
     Scrol.insert(END,'解压完成' + '\n')
     Scrol.see(END)
+
+def unzip_file_extension(zip_src, dst_dir, fmode):
+    r = zipfile.is_zipfile(zip_src)
+    if r:
+        fz = zipfile.ZipFile(zip_src, 'r')
+        if fmode == 0:     #只解压配置文件到临时文件夹
+            for file in fz.namelist():
+                if file.endswith(".txt"):
+                    Scrol.insert(END,'Unpacking: ' + ' /{0}'.format(os.path.basename(file)) + '\n')
+                    Scrol.see(END)
+                    root.update()
+                    fz.extract(file, dst_dir)
+                elif file.endswith(".item"):
+                    Scrol.insert(END,'Unpacking: ' + ' /{0}'.format(os.path.basename(file)) + '\n')
+                    Scrol.see(END)
+                    root.update()
+                    fz.extract(file, dst_dir)
+                else:
+                    pass
+        elif fmode == 1:    #除了配置文件外解压到游戏目录
+            for file in fz.namelist():
+                if file.endswith(".txt"):
+                    pass
+                elif file.endswith(".item"):
+                    pass
+                else:
+                    Scrol.insert(END,'Unpacking: ' + ' /{0}'.format(os.path.basename(file)) + '\n')
+                    Scrol.see(END)
+                    root.update()
+                    fz.extract(file, dst_dir)
+            
+
+        #for file in fz.namelist():
+        #    if not os.path.isfile(os.path.join(zip_src, file)):
+        #        continue
+        #    if file.split('.')[-1] == extension1:
+        #        print(extension1)
+        #        print(file.split('.')[-1])
+        #        Scrol.insert(END,'Unpacking: ' + ' /{0}'.format(os.path.basename(file)) + '\n')
+        #        Scrol.see(END)
+        #        root.update()
+        #        fz.extract(file, dst_dir)
+
+    else:
+        print('This is not zip')
+
 
 #文件复制流
 def streamIo(src, dst):
@@ -230,9 +279,8 @@ def UnpackBackup_o(BackupPackPath, Folderpath):
     tmp_path_n = tmp_path + '/'
     tmdir(tmp_path)
 
-    #解压备份包到临时文件夹
-
-    unzip_file(BackupPackPath, tmp_path_n)
+    #解压配置文件到临时文件夹
+    unzip_file_extension(BackupPackPath, tmp_path_n, 0)
 
     #读取key文件，获取原始路径
     full_path = './Temp1/key.txt'
@@ -296,17 +344,19 @@ def UnpackBackup_o(BackupPackPath, Folderpath):
         #获取游戏文件夹名称
     GamePath = os.path.basename(BackupPackPath) 
     GamePath = os.path.splitext(GamePath)[0]
-    GamePath2 = os.path.join(tmp_path_n,GamePath)
-        #复制文件
-    Folderpath_u = os.path.join(Folderpath, GamePath)
-    streamIo(GamePath2, Folderpath_u)
+    #GamePath2 = os.path.join(tmp_path_n,GamePath)
+    #Folderpath_u = os.path.join(Folderpath, GamePath)
+        #解压游戏文件
+    unzip_file_extension(BackupPackPath, Folderpath, 1)   #解压文件到游戏目录
+    #streamIo(GamePath2, Folderpath_u)
+
         #删除文件
     shutil.rmtree(tmp_path)
     Scrol.insert(END,'删除临时文件，完成' + '\n')
     Scrol.see(END)
         #弹出完成窗口
     GameItemList()
-    tkinter.messagebox.showinfo('Epic Game Backup','恢复完成')   
+    tkinter.messagebox.showinfo('提示','恢复完成')   
 
 #迁移执行包
 def moveFiles():        
@@ -428,7 +478,9 @@ GameItemList()
 
 #GUi界面实现
 root = Tk()
-
+with open('tmp.ico','wb') as tmp:
+    tmp.write(base64.b64decode(Icon().img))
+    root.iconbitmap('tmp.ico')
 #高DPI适配
 #调用api设置成由应用程序缩放
 ctypes.windll.shcore.SetProcessDpiAwareness(1)
