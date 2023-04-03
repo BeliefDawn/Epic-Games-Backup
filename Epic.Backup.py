@@ -2,7 +2,7 @@
 import base64
 import ctypes
 import glob
-import multiprocessing
+
 import os
 import shutil
 import tempfile
@@ -16,12 +16,13 @@ from tkinter import *
 from tkinter import END, filedialog, scrolledtext
 from tkinter.ttk import *
 
+import multiprocessing
 from multiprocessing_win import *
 from EIcon import *
 from PFile import *
 
 #版本代码
-Eversion = "V1.12m"
+Eversion = "V1.14m"
 
 #实现开始###########################################################################################
 def on_closing():   #退出确认
@@ -350,7 +351,9 @@ def UnPackBackup(BackupPackPath, Folderpath):       #恢复程序包
         Scrol.see(END)
             #弹出完成窗口
         tkinter.messagebox.showinfo('提示','恢复完成')
+        GameItemList()
         sWin.destroy()
+
     def ThreadUNzip(BackupPackPath, Folderpath):
         SourseWithDistpath = (BackupPackPath, Folderpath)
         Thread_UNzip = threading.Thread(target= UnpackBackup_o, args= SourseWithDistpath)
@@ -404,20 +407,25 @@ def moveFiles(PathOld, PathNew):        #迁移执行包
             #修改Manifest清单文件\
         GameFile_manifest = os.path.join(PathOld_s,'.egstore')     #为路径添加，进入配置文件夹
         L2 = file_name(GameFile_manifest, '.manifest')     #获取游戏ID，分离扩展名
-        if PathCheck(GameFile_manifest) == '__directory':  
+        if PathCheck(GameFile_manifest) == '__directory':
             ID = L2[0]
                 #拼合文件路径
             F1 = 'C:\\ProgramData\\Epic\\EpicGamesLauncher\\Data\\Manifests\\'
             F2 = ID + '.item'   #拼合文件名
             F3 = ID + '.bak'
-            PathNew_w = os.path.join(PathNew_w,GameName)
+            #PathNew_w = os.path.join(PathNew_w,GameName)
             PathOld_w = repr(PathOld_w.replace("/","\\"))
             PathNew_w = repr(PathNew_w.replace("/","\\"))
+            #Fuck Epic '\\' and '/' with a lot of unbeliable arts.
+            PathOld_w = PathOld_w.replace("\\\\"+GameName,"")
+            PathOld_w = PathOld_w +'/'+ GameName
+            PathNew_w = PathNew_w +'/'+ GameName
+            #fuck over
             PathOld_w = PathOld_w.replace("'",'')
             PathNew_w = PathNew_w.replace("'",'')
                 #拼合文件路径
             Folderpath_Itme_o = os.path.abspath(os.path.join(F1,F2))
-            Folderpath_Itme_n = os.path.abspath(os.path.join(F1,F3)) 
+            Folderpath_Itme_n = os.path.abspath(os.path.join(F1,F3))
             f = open(Folderpath_Itme_o,'r',encoding='utf-8')
             f_new = open(Folderpath_Itme_n,'w',encoding='utf-8')
             for line in f:
@@ -435,10 +443,11 @@ def moveFiles(PathOld, PathNew):        #迁移执行包
             #重命名新文件
             manifest_l = os.path.splitext(Folderpath_Itme_n)     #分离文件名与后缀，放在list中
             if manifest_l[1] == '.bak':
-                # 重新组合文件名和后缀名   
+                # 重新组合文件名和后缀名
                 manifest_r = manifest_l[0] + ".item"
                 os.rename(Folderpath_Itme_n,manifest_r)
                 Scrol.insert(END,'配置文件修改完成，重启epic加载' + '\n')
+            GameItemList()
             tkinter.messagebox.showinfo('提示','迁移完成')
             sWin.destroy()
         else:
